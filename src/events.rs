@@ -3,9 +3,9 @@ use std::vec::Vec;
 
 
 pub struct Event<T> {
-    name: String,
-    description: String,
-    callbacks: Vec<dyn Fn(&T) -> ()>
+    pub name: String,
+    pub description: String,
+    callbacks: Vec<Box<dyn Fn(&T) -> ()>>
 }
 
 
@@ -16,9 +16,23 @@ impl<T> Event<T> {
         }
     }
 
-    pub fn on(&mut self, callback: fn(&T) -> ()) {
-        self.callbacks.push(callback);
+    pub fn on(&mut self, callback: impl 'static + Fn(&T) -> ()) {
+        self.callbacks.push(Box::new(callback));
     }
 }
+
+
+
+pub fn new_event<T>(name: &str, description: &str) -> Event<T> {
+    let vec = Vec::new();
+    let ev: Event<T> = Event {
+        name: name.to_string(),
+        description: description.to_string(),
+        callbacks: vec
+    };
+
+    ev
+}
+
 
 
